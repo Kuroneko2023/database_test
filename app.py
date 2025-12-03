@@ -5,6 +5,7 @@ import os                    # <--- เพิ่มตัวนี้ (เพื
 from dotenv import load_dotenv # <--- เพิ่มตัวนี้ (เพื่ออ่านไฟล์ .env)
 
 # โหลดค่าจากไฟล์ .env เข้ามาในระบบ
+#test
 load_dotenv()
 
 app = Flask(__name__)
