@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ book.title }} - Details</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Prompt:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f0f10; --card-bg: #1a1a1c; 
+            --text-primary: #e0e0e0; --text-secondary: #a0a0a0;
+            --gold-accent: #d4af37;
+            --gold-gradient: linear-gradient(135deg, #d4af37 0%, #f3e5ab 50%, #c5a059 100%);
+        }
+        body { 
+            font-family: 'Prompt', sans-serif; 
+            background-color: var(--bg-color); color: var(--text-primary); 
+            margin: 0; padding: 40px; font-weight: 300;
+        }
+        
+        /* Navigation */
+        .nav-bar { margin-bottom: 30px; }
+        .back-btn { 
+            color: var(--gold-accent); text-decoration: none; 
+            font-size: 1.1em; transition: 0.3s; 
+        }
+        .back-btn:hover { letter-spacing: 1px; color: #fff; }
+
+        /* Layout Container */
+        .container {
+            max-width: 1000px; margin: 0 auto;
+            background-color: var(--card-bg);
+            border-radius: 12px; overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* Header Section */
+        .book-header {
+            padding: 50px; text-align: center;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+            background: linear-gradient(to bottom, #252528, #1a1a1c);
+        }
+        .book-title {
+            font-family: 'Playfair Display', serif; font-size: 3.5em; margin: 0;
+            background: var(--gold-gradient); -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent; text-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        .book-author {
+            font-size: 1.2em; color: var(--text-secondary); margin-top: 10px; text-transform: uppercase; letter-spacing: 2px;
+        }
+        .book-series {
+            color: var(--gold-accent); font-style: italic; margin-bottom: 5px; display: block;
+        }
+
+        /* Content Grid */
+        .content { padding: 50px; }
+        
+        /* Synopsis Box */
+        .synopsis-box {
+            background: rgba(255,255,255,0.03); padding: 30px; border-left: 3px solid var(--gold-accent);
+            margin-bottom: 40px; font-size: 1.1em; line-height: 1.8; color: #ddd;
+            font-family: 'Playfair Display', serif; font-style: italic;
+        }
+        .section-title {
+            color: var(--gold-accent); border-bottom: 1px solid #444;
+            padding-bottom: 10px; margin-bottom: 20px; font-size: 1.2em; text-transform: uppercase;
+        }
+
+        /* Info Grid System */
+        .info-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px; margin-bottom: 40px;
+        }
+        .info-item label { display: block; color: #666; font-size: 0.85em; margin-bottom: 5px; text-transform: uppercase; }
+        .info-item span { font-size: 1.05em; color: #fff; border-bottom: 1px dotted #444; padding-bottom: 2px; }
+
+        /* ป้าย Tag และ ปุ่มหมวดหมู่ */
+        .tag-badge {
+            display: inline-block; padding: 4px 12px; border: 1px solid var(--gold-accent);
+            color: var(--gold-accent); font-size: 0.8em; border-radius: 20px; margin-right: 5px;
+            text-decoration: none; /* เอาขีดเส้นใต้ออกสำหรับลิงก์ */
+            transition: all 0.3s ease;
+        }
+        
+        /* เพิ่ม Effect เวลาเอาเมาส์ชี้ (เฉพาะที่เป็นลิงก์) */
+        a.tag-badge:hover {
+            background-color: var(--gold-accent);
+            color: #000;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+        }
+        
+        /* Edit Button */
+        .action-area { text-align: center; margin-top: 50px; padding-top: 30px; border-top: 1px solid #333; }
+        .edit-btn {
+            background: transparent; border: 1px solid var(--gold-accent); color: var(--gold-accent);
+            padding: 10px 40px; text-decoration: none; border-radius: 30px; transition: 0.3s;
+        }
+        .edit-btn:hover { background: var(--gold-accent); color: #000; }
+
+    </style>
+</head>
+<body>
+
+    <div class="nav-bar">
+        <a href="/" class="back-btn">← Back to Collection</a>
+    </div>
+
+    <div class="container">
+        <div class="book-header">
+            {% if book.series_name %}
+                <span class="book-series">{{ book.series_name }}</span>
+            {% endif %}
+            
+            <h1 class="book-title">{{ book.title }}</h1>
+            <div class="book-author">By {{ book.author_name }}</div>
+
+            {% if book.image_filename %}
+            <div style="margin: 30px 0;">
+                <img src="{{ url_for('static', filename='uploads/' + book.image_filename) }}" 
+                     alt="Book Cover" 
+                     style="max-width: 300px; max-height: 450px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 2px solid #d4af37;">
+            </div>
+            {% else %}
+            <div style="margin: 30px auto; width: 200px; height: 300px; background: rgba(255,255,255,0.05); border: 1px dashed #555; display: flex; align-items: center; justify-content: center; color: #555; border-radius: 8px;">
+                No Cover Image
+            </div>
+            {% endif %}
+            
+            <div style="margin-top:20px;">
+                {% if book.category %} 
+                    {% for tag in book.category | split_tags %}
+                        <a href="{{ url_for('shop', category=tag) }}" class="tag-badge">
+                            {{ tag }}
+                        </a> 
+                    {% endfor %}
+                {% endif %}
+                
+                {% if book.genre %} 
+                    {% for g in book.genre | split_tags %}
+                        <a href="{{ url_for('shop', genre=g) }}" class="tag-badge" style="border-color: #aaa; color: #aaa;">
+                            {{ g }}
+                        </a> 
+                    {% endfor %}
+                {% endif %}
+                
+                {% if book.rating %} <span class="tag-badge" style="border-color: #fff; color: #fff;">★ {{ book.rating }}</span> {% endif %}
+            </div>
+        </div>
+
+        <div class="content">
+            
+            {% if book.synopsis %}
+            <div class="section-title">Synopsis</div>
+            <div class="synopsis-box">
+                "{{ book.synopsis }}"
+            </div>
+            {% endif %}
+
+            <div class="section-title">Publication Details</div>
+            <div class="info-grid">
+                <div class="info-item"><label>ISBN</label><span>{{ book.isbn or '-' }}</span></div>
+                <div class="info-item"><label>Publisher</label><span>{{ book.publisher or '-' }}</span></div>
+                <div class="info-item"><label>Publication Date</label><span>{{ book.publication_date or '-' }}</span></div>
+                <div class="info-item"><label>Edition</label><span>{{ book.edition or '-' }}</span></div>
+                <div class="info-item"><label>Language</label><span>{{ book.language or '-' }}</span></div>
+                <div class="info-item"><label>Pages</label><span>{{ book.number_of_pages or '-' }} Pages</span></div>
+                <div class="info-item"><label>Price</label><span>${{ book.price or '-' }}</span></div>
+            </div>
+
+            <div class="section-title">Additional Info</div>
+            <div class="info-grid">
+                <div class="info-item"><label>Target Audience</label><span>{{ book.target_audience or '-' }}</span></div>
+                <div class="info-item"><label>Paper Type</label><span>{{ book.paper_type or '-' }}</span></div>
+                <div class="info-item"><label>Cover Type</label><span>{{ book.cover_type or '-' }}</span></div>
+                <div class="info-item"><label>Illustrator</label><span>{{ book.illustrator_name or '-' }}</span></div>
+                <div class="info-item"><label>Awards</label><span>{{ book.awards or 'None' }}</span></div>
+                <div class="info-item"><label>Printing Company</label><span>{{ book.printing_company or '-' }}</span></div>
+            </div>
+
+            {% if book.characters %}
+            <div class="section-title">Key Characters</div>
+            <p style="color:#bbb;">{{ book.characters }}</p>
+            {% endif %}
+
+            {% if book.edition_notes %}
+            <div class="section-title">Edition Notes</div>
+            <p style="color:#bbb; font-size:0.9em;">{{ book.edition_notes }}</p>
+            {% endif %}
+            
+            <div class="action-area">
+                {% if session.get('is_admin') %}
+                    <a href="/edit/{{ book.id }}" class="edit-btn">Edit this Book</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

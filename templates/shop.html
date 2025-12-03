@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Archive Store</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Prompt:wght@300;400;500&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* --- VARIABLES & RESET --- */
+        :root {
+            --bg-color: #0f0f10; 
+            --card-bg: #1a1a1c;
+            --text-primary: #e0e0e0; 
+            --text-secondary: #aaa;
+            --gold-accent: #d4af37;
+            --gold-gradient: linear-gradient(135deg, #d4af37 0%, #f3e5ab 50%, #c5a059 100%);
+            --sidebar-width: 260px;
+        }
+
+        body { 
+            font-family: 'Prompt', sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-primary); 
+            margin: 0; 
+            padding: 0; 
+        }
+
+        a { text-decoration: none; color: inherit; transition: 0.3s; }
+        ul { list-style: none; padding: 0; margin: 0; }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            height: 300px;
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1507842217153-e52fbc57d325?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');
+            background-size: cover; 
+            background-position: center;
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center;
+            text-align: center; 
+            border-bottom: 2px solid var(--gold-accent);
+        }
+        .hero h1 {
+            font-family: 'Playfair Display', serif; 
+            font-size: 3.5em; 
+            margin: 0;
+            background: var(--gold-gradient); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.8);
+            letter-spacing: 1px;
+        }
+        .hero p { color: #ccc; font-size: 1.1em; letter-spacing: 3px; text-transform: uppercase; margin-top: 10px; }
+
+        /* --- NAVBAR --- */
+        .navbar {
+            padding: 15px 40px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            background: rgba(26, 26, 28, 0.95); 
+            position: sticky; 
+            top: 0; 
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255,255,255,0.05); 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+        }
+        .nav-logo { font-family: 'Playfair Display', serif; color: var(--gold-accent); font-size: 1.5em; font-weight: bold; letter-spacing: 1px; }
+        
+        /* Search Bar */
+        .search-form { display: flex; align-items: center; background: rgba(255,255,255,0.05); padding: 5px 15px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.1); }
+        .search-input { background: transparent; border: none; color: #fff; padding: 5px; outline: none; font-family: 'Prompt', sans-serif; min-width: 250px; }
+        .search-btn { background: none; border: none; color: var(--gold-accent); cursor: pointer; font-size: 1.1em; }
+
+        /* User Menu */
+        .user-menu { display: flex; gap: 20px; align-items: center; font-size: 0.9em; }
+        .nav-link { color: var(--text-secondary); }
+        .nav-link:hover { color: var(--gold-accent); }
+
+        /* --- MAIN LAYOUT --- */
+        .container { display: grid; grid-template-columns: var(--sidebar-width) 1fr; gap: 40px; max-width: 1400px; margin: 40px auto; padding: 0 20px; }
+
+        /* --- SIDEBAR --- */
+        .sidebar { position: sticky; top: 100px; height: fit-content; }
+        .sidebar h3 { 
+            font-family: 'Playfair Display', serif; 
+            color: var(--gold-accent); 
+            margin-top: 30px; 
+            margin-bottom: 15px; 
+            font-size: 1.4em; 
+            border-bottom: 1px solid #333; 
+            padding-bottom: 8px; 
+        }
+        .sidebar h3:first-child { margin-top: 0; }
+        
+        .cat-item { margin-bottom: 2px; }
+        .cat-link {
+            display: block; 
+            color: var(--text-secondary); 
+            padding: 8px 12px;
+            border-radius: 6px; 
+            font-size: 0.95em;
+        }
+        .cat-link:hover { background: rgba(255,255,255,0.05); color: #fff; transform: translateX(5px); }
+        .cat-link.active {
+            background: linear-gradient(90deg, rgba(212, 175, 55, 0.2) 0%, transparent 100%);
+            color: var(--gold-accent); 
+            font-weight: 500; 
+            border-left: 3px solid var(--gold-accent);
+        }
+
+        /* --- PRODUCT GRID --- */
+        .books-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 30px; }
+
+        /* --- BOOK CARD --- */
+        .book-card {
+            background-color: var(--card-bg); 
+            border-radius: 8px; 
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.05); 
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex; 
+            flex-direction: column;
+            position: relative;
+        }
+        .book-card:hover { 
+            transform: translateY(-8px); 
+            box-shadow: 0 15px 30px rgba(0,0,0,0.5); 
+            border-color: rgba(212, 175, 55, 0.3); 
+        }
+
+        /* Image Area */
+        .card-img-wrapper { width: 100%; height: 340px; overflow: hidden; position: relative; background: #111; }
+        .card-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; opacity: 0.9; }
+        .book-card:hover .card-img { transform: scale(1.05); opacity: 1; }
+        .no-img { display: flex; justify-content: center; align-items: center; height: 100%; color: #444; flex-direction: column; gap: 10px; }
+
+        /* Content Area */
+        .card-info { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; }
+
+        /* !!! FIXED CATEGORY TAGS !!! */
+        .card-tags { 
+            margin-bottom: 8px; 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 6px; 
+            align-items: center; 
+            min-height: 20px;
+        }
+        .tag-link {
+            color: var(--gold-accent);
+            font-size: 0.7em; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            font-weight: 600;
+        }
+        .tag-link:hover { color: #fff; text-decoration: underline; text-shadow: 0 0 5px var(--gold-accent); }
+        .tag-separator { color: #444; font-size: 0.7em; }
+
+        /* Title & Author */
+        .card-title { 
+            font-family: 'Playfair Display', serif; 
+            font-size: 1.15em; 
+            color: #fff; 
+            margin: 0 0 5px 0; 
+            line-height: 1.3;
+        }
+        .card-author { color: var(--text-secondary); font-size: 0.9em; margin-bottom: 15px; }
+
+        /* Footer (Price & Button) */
+        .card-footer { 
+            margin-top: auto; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-top: 1px solid rgba(255,255,255,0.05); 
+            padding-top: 15px; 
+        }
+        .price { color: #fff; font-weight: 500; font-size: 1.1em; font-family: 'Playfair Display', serif; }
+        .btn-view { 
+            background: transparent; 
+            color: var(--gold-accent); 
+            border: 1px solid var(--gold-accent); 
+            padding: 6px 18px; 
+            border-radius: 20px; 
+            font-size: 0.8em; 
+            font-weight: 600; 
+            text-transform: uppercase;
+        }
+        .btn-view:hover { background: var(--gold-accent); color: #000; box-shadow: 0 0 10px rgba(212, 175, 55, 0.4); }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 900px) {
+            .container { grid-template-columns: 1fr; }
+            .sidebar { position: relative; top: 0; margin-bottom: 30px; }
+            .hero h1 { font-size: 2.5em; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Hero Header -->
+    <div class="hero">
+        <h1>The Archive</h1>
+        <p>Premium Book Collection</p>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <a href="{{ url_for('shop') }}" class="nav-logo">THE ARCHIVE</a>
+        
+        <!-- Search Form -->
+        <form action="{{ url_for('shop') }}" method="GET" class="search-form">
+            <input type="text" name="search" class="search-input" placeholder="Search title or author..." value="{{ request.args.get('search', '') }}">
+            <button type="submit" class="search-btn"><i class="fas fa-search"></i></button>
+        </form>
+
+        <!-- User Actions -->
+        <div class="user-menu">
+            {% if 'user_id' in session %}
+                <span style="color: #fff;">Hello, {{ session['username'] }}</span>
+                {% if session.get('is_admin') %}
+                    <a href="/admin" class="nav-link">Dashboard</a>
+                {% endif %}
+                <a href="/logout" class="nav-link" style="color: #e74c3c;">Logout</a>
+            {% else %}
+                <a href="/login" class="nav-link">Login</a>
+                <a href="/register" class="btn-view" style="color: var(--gold-accent); border-color: var(--gold-accent);">Register</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        
+        <!-- Sidebar: Filters -->
+        <aside class="sidebar">
+            <h3>Explore</h3>
+            <ul>
+                <li class="cat-item">
+                    <a href="{{ url_for('shop') }}" class="cat-link {{ 'active' if not request.args.get('category') and not request.args.get('genre') else '' }}">
+                        <i class="fas fa-compass" style="margin-right:8px;"></i> View All Books
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Category List -->
+            {% if categories %}
+            <h3>Categories</h3>
+            <ul>
+                {% for cat in categories %}
+                <li class="cat-item">
+                    <a href="{{ url_for('shop', category=cat) }}" 
+                       class="cat-link {{ 'active' if request.args.get('category') == cat else '' }}">
+                       {{ cat }}
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+
+            <!-- Genre List -->
+            {% if genres %}
+            <h3>Genres</h3>
+            <ul>
+                {% for gen in genres %}
+                <li class="cat-item">
+                    <a href="{{ url_for('shop', genre=gen) }}" 
+                       class="cat-link {{ 'active' if request.args.get('genre') == gen else '' }}">
+                       {{ gen }}
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </aside>
+
+        <!-- Product Grid -->
+        <main>
+            {% if not books %}
+                <div style="text-align: center; padding: 60px; color: #555;">
+                    <i class="fas fa-book-dead" style="font-size: 3rem; margin-bottom: 20px; color: #333;"></i>
+                    <h2>No books found.</h2>
+                    <p>Try resetting your filters or search for something else.</p>
+                    <a href="{{ url_for('shop') }}" class="btn-view" style="margin-top: 20px; display: inline-block;">Clear Filters</a>
+                </div>
+            {% else %}
+                <div class="books-grid">
+                    {% for book in books %}
+                    <div class="book-card">
+                        
+                        <!-- Image -->
+                        <div class="card-img-wrapper">
+                            <!-- Corrected: book.image_filename to match app.py -->
+                            {% if book.image_filename %}
+                                <img src="{{ url_for('static', filename='uploads/' + book.image_filename) }}" class="card-img" alt="{{ book.title }}">
+                            {% else %}
+                                <div class="no-img">
+                                    <i class="fas fa-book fa-3x"></i>
+                                    <span>No Cover</span>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Info -->
+                        <div class="card-info">
+                            
+                            <!-- Categories Loop -->
+                            <div class="card-tags">
+                                {% if book.category %}
+                                    {% for tag in book.category | split_tags %}
+                                        <a href="{{ url_for('shop', category=tag) }}" class="tag-link">{{ tag }}</a>
+                                        {% if not loop.last %}
+                                            <span class="tag-separator">|</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% else %}
+                                    <span class="tag-separator">GENERAL</span>
+                                {% endif %}
+                            </div>
+
+                            <h3 class="card-title" title="{{ book.title }}">{{ book.title }}</h3>
+                            <!-- Corrected: book.author_name to match app.py -->
+                            <div class="card-author">by {{ book.author_name }}</div>
+
+                            <div class="card-footer">
+                                <div class="price">฿{{ book.price }}</div>
+                                <a href="{{ url_for('book_detail', id=book.id) }}" class="btn-view">Details</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <!-- Pagination (Mockup logic based on app.py variables) -->
+            {% if total_pages > 1 %}
+            <div style="margin-top: 50px; text-align: center;">
+                 {% if page > 1 %}
+                    <a href="{{ url_for('shop', page=page-1, category=request.args.get('category'), genre=request.args.get('genre'), search=request.args.get('search')) }}" class="btn-view" style="margin-right:10px;">&laquo; Previous</a>
+                {% endif %}
+                
+                <span style="color: #666; font-size: 0.9em;">Page {{ page }} of {{ total_pages }}</span>
+
+                {% if page < total_pages %}
+                    <a href="{{ url_for('shop', page=page+1, category=request.args.get('category'), genre=request.args.get('genre'), search=request.args.get('search')) }}" class="btn-view" style="margin-left:10px;">Next &raquo;</a>
+                {% endif %}
+            </div> 
+            {% endif %}
+        </main>
+    </div>
+
+</body>
+</html>

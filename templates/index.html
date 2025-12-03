@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Library Collection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Prompt:wght@300;400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #0f0f10; --card-bg: #1a1a1c; --text-primary: #e0e0e0;
+            --text-secondary: #a0a0a0; --gold-accent: #d4af37;
+            --gold-gradient: linear-gradient(135deg, #d4af37 0%, #f3e5ab 50%, #c5a059 100%);
+            --danger-color: #cf6679; --success-color: #03dac6;
+        }
+        body { font-family: 'Prompt', sans-serif; margin: 0; padding: 40px; padding-top: 80px; background-color: var(--bg-color); color: var(--text-primary); font-weight: 300; }
+        header { text-align: center; margin-bottom: 50px; }
+        h1 { font-family: 'Playfair Display', serif; font-size: 3em; margin: 0; background: var(--gold-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        .add-btn {
+            display: inline-block; margin-top: 20px; padding: 10px 30px;
+            background: var(--gold-gradient); color: #000; text-decoration: none;
+            border-radius: 30px; font-weight: bold; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+            transition: transform 0.2s;
+        }
+        .add-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5); }
+
+        .control-bar { position: fixed; top: 25px; right: 40px; z-index: 1000; display: flex; align-items: center; gap: 15px; background: rgba(26, 26, 28, 0.85); backdrop-filter: blur(12px); padding: 8px 20px; border-radius: 50px; border: 1px solid rgba(212, 175, 55, 0.3); }
+        .search-input { background: transparent; border: none; border-bottom: 1px solid rgba(212, 175, 55, 0.3); color: var(--text-primary); padding: 5px 10px; width: 150px; outline: none; }
+        .search-btn { background: none; border: none; cursor: pointer; color: var(--gold-accent); }
+        .page-btn { color: var(--gold-accent); text-decoration: none; padding: 0 10px; }
+        
+        .table-wrapper { background-color: var(--card-bg); border-radius: 12px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.05); }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { padding: 15px 20px; text-align: left; border-bottom: 1px solid rgba(255, 255, 255, 0.03); }
+        th { background-color: #252528; color: var(--gold-accent); position: sticky; top: 0; font-family: 'Prompt', sans-serif; text-transform: uppercase; font-size: 0.9em; letter-spacing: 1px; }
+        tr:hover { background-color: rgba(255, 255, 255, 0.03); }
+
+        .action-btn { text-decoration: none; font-size: 0.85em; margin-right: 10px; padding: 5px 10px; border-radius: 5px; border: 1px solid; transition: all 0.2s; }
+        .edit-btn { color: var(--success-color); border-color: var(--success-color); }
+        .edit-btn:hover { background: var(--success-color); color: #000; }
+        .delete-btn { color: var(--danger-color); border-color: var(--danger-color); background: none; cursor: pointer; }
+        .delete-btn:hover { background: var(--danger-color); color: #fff; }
+        
+        .flash-msg { position: fixed; top: 90px; left: 50%; transform: translateX(-50%); padding: 10px 20px; border-radius: 5px; z-index: 2000; animation: fadeout 4s forwards; }
+        .flash-success { background-color: rgba(3, 218, 198, 0.2); border: 1px solid var(--success-color); color: var(--success-color); }
+        .flash-danger { background-color: rgba(207, 102, 121, 0.2); border: 1px solid var(--danger-color); color: var(--danger-color); }
+        @keyframes fadeout { 0% {opacity:1;} 80% {opacity:1;} 100% {opacity:0; visibility: hidden;} }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>The Archive</h1>
+        <div style="color:#aaa; margin-top:5px;">Premium Collection Database</div>
+        <a href="/add" class="add-btn">+ ADD NEW BOOK</a>
+    </header>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash-msg flash-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="control-bar">
+        <form action="/" method="get" style="display:flex; align-items:center;">
+            <input type="text" name="search" class="search-input" placeholder="Search..." value="{{ search_query }}">
+            <button type="submit" class="search-btn">🔍</button>
+        </form>
+        <span style="border-left:1px solid #555; height:20px; margin:0 10px;"></span>
+        {% if page > 1 %} <a href="/?page={{ page - 1 }}&search={{ search_query }}" class="page-btn">Prev</a> {% endif %}
+        <span style="color:#fff;">{{ page }} / {{ total_pages }}</span>
+        {% if page < total_pages %} <a href="/?page={{ page + 1 }}&search={{ search_query }}" class="page-btn">Next</a> {% endif %}
+    </div>
+
+    <div class="table-wrapper">
+        <div style="overflow-x:auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">ID</th>
+                        <th>AUTHOR</th>    <th>CATEGORY</th>
+                        <th>PRICE</th>
+                        <th>PUBLISHER</th>
+                        <th>ISBN</th>
+                        <th>ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in rows %}
+                    <tr>
+                        <td><span style="color: #666;">#{{ row[0] }}</span></td>
+                        
+                        <td>
+                            <a href="/book/{{ row[0] }}" style="color: #d4af37; text-decoration: none; font-weight: bold; font-size: 1.1em; transition: 0.3s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#d4af37'">
+                                {{ row[2] }}
+                            </a>
+                        </td>
+
+                        <td>{{ row[3] }}</td> <td>${{ row[4] }}</td> <td>{{ row[5] }}</td> <td style="font-family: monospace; color: #888;">{{ row[6] }}</td> <td style="white-space:nowrap;">
+                            <a href="/edit/{{ row[0] }}" class="action-btn edit-btn">Edit</a>
+                            
+                            <form action="/delete/{{ row[0] }}" method="POST" style="display:inline;" onsubmit="return confirm('ยืนยันที่จะลบข้อมูลนี้?');">
+                                <button type="submit" class="action-btn delete-btn">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</body>
+</html>
